@@ -1,5 +1,8 @@
 const express = require('express')
-const app = express()
+const app = express() // server
+
+var robot = require("robotjs"); // penggerak pointer
+robot.setMouseDelay(2);
 
 const requestLogger = (request, response, next) => {
   console.log('Method:', request.method)
@@ -8,28 +11,14 @@ const requestLogger = (request, response, next) => {
   console.log('---')
   next()
 }
+app.use(requestLogger) // logger untuk debugging
+app.use(express.json()) // parser body
 
-app.use(requestLogger)
-
-
-// Move the mouse across the screen as a sine wave.
-var robot = require("robotjs");
-
-// Speed up the mouse.
-robot.setMouseDelay(2);
-
-
-
-
-
-
-app.use(express.json());
-
-app.get('/', (request, response) => {
+app.get('/', (request, response) => { // tes koneksi
   response.send('<h1>Hello World!</h1>')
 })
 
-app.post('/api/move', (request, response) => {
+app.post('/api/move', (request, response) => { // menerima request gerakkan pointer
   const offset = request.body
   let pos = robot.getMousePos();
   robot.moveMouse(pos.x + offset.x, pos.y + offset.y);
@@ -37,21 +26,19 @@ app.post('/api/move', (request, response) => {
   response.json(offset)
 })
 
-
-app.post('/api/leftclk', (request, response) => {
+app.post('/api/leftclk', (request, response) => { // menerima request klik kiri
   robot.mouseClick("left");
   const success = {status:"success"}
   response.json(success)
 })
 
-
-app.post('/api/rightclk', (request, response) => {
+app.post('/api/rightclk', (request, response) => { // menerima request klik kanan
   robot.mouseClick("right");
   const success = {status:"success"}
   response.json(success)
 })
 
 const PORT = 3001
-app.listen(PORT, () => {
+app.listen(PORT, () => { // menunggu request di port 3001
   console.log(`Server running on port ${PORT}`)
 })
